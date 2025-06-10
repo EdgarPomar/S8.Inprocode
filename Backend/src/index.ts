@@ -1,18 +1,21 @@
-import express, { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import express from 'express';
+import cors from 'cors';
+import { connectDB } from './db';
+import viajesRoutes from './routes/viajes'; // ✅ importa tus rutas
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.get('/', (req: Request, res: Response) => {
+app.use(cors()); // ✅ habilita CORS
+app.use(express.json()); // ✅ permite recibir JSON
+
+app.use('/api/viajes', viajesRoutes); // ✅ monta las rutas AQUÍ
+
+app.get('/', (req, res) => {
   res.send('¡Hola desde Express con TypeScript!');
 });
 
-app.listen(port, () => {
+app.listen(port, async () => {
+  await connectDB(); // conecta con MongoDB
   console.log(`Servidor corriendo en http://localhost:${port}`);
 });
-
-
-mongoose.connect('mongodb+srv://edgarmunozmanjon:URQtZCxJisJAw8Dt@backenddb.bttvajz.mongodb.net/BackendDB?retryWrites=true&w=majority')
-  .then(() => console.log('Connected to MongoDB!'))
-  .catch(err => console.error('Connection error:', err));
