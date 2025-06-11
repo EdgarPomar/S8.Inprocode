@@ -2,7 +2,8 @@ import express, { Request, Response } from 'express';
 import Viaje, { IViaje } from '../models/Viaje';
 
 const router = express.Router();
-
+const morgan = require('morgan');
+router.use(morgan('dev'));
 // Crear
 router.post('/', async (req: Request, res: Response) => {
   try {

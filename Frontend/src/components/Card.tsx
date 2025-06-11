@@ -18,7 +18,7 @@ const Card: React.FC = () => {
       .then(res => res.json())
       .then(data => setViajes(data))
       .catch(err => console.error('Error al obtener viajes:', err));
-  }, []);
+  }, [viajes]);
 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
