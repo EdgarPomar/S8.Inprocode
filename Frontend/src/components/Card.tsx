@@ -35,7 +35,7 @@ const Card: React.FC = () => {
         >
           <h2>{viaje.lugar}</h2>
           <p><strong>Ida:</strong> {new Date(viaje.fechaIda).toLocaleDateString()}</p>
-          <p><strong>Vuelta:</strong> {new Date(viaje.fechaVuelta).toLocaleDateString()}</p>
+          <p><strong>Vueltas:</strong> {new Date(viaje.fechaVuelta).toLocaleDateString()}</p>
           {viaje.imagen && (
             <img src={viaje.imagen} alt={viaje.lugar} style={{ width: '100%', height: 'auto' }} />
           )}
