@@ -18,31 +18,30 @@ const Card: React.FC = () => {
       .then(res => res.json())
       .then(data => setViajes(data))
       .catch(err => console.error('Error al obtener viajes:', err));
-  }, [viajes]);
+  }, []); // <- Corregido para que no sea una llamada infinita
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-      {viajes.map(viaje => (
-        <div
-          key={viaje._id}
-          style={{
-            border: '1px solid #ccc',
-            borderRadius: '8px',
-            padding: '1rem',
-            width: '300px',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-          }}
-        >
-          <h2>{viaje.lugar}</h2>
-          <p><strong>Ida:</strong> {new Date(viaje.fechaIda).toLocaleDateString()}</p>
-          <p><strong>Vueltas:</strong> {new Date(viaje.fechaVuelta).toLocaleDateString()}</p>
-          {viaje.imagen && (
-            <img src={viaje.imagen} alt={viaje.lugar} style={{ width: '100%', height: 'auto' }} />
-          )}
-          <p>{viaje.descripcion}</p>
-          <p><em>{viaje.opinion}</em></p>
-        </div>
-      ))}
+    <div className="container my-4">
+      <div className="row g-4">
+        {viajes.map(viaje => (
+          <div className="col-md-4" key={viaje._id}>
+            <div className="card h-100 shadow-sm">
+              {viaje.imagen && (
+                <img src={viaje.imagen} className="card-img-top" alt={viaje.lugar} />
+              )}
+              <div className="card-body">
+                <h5 className="card-title">{viaje.lugar}</h5>
+                <p className="card-text">
+                  <strong>Ida:</strong> {new Date(viaje.fechaIda).toLocaleDateString()}<br />
+                  <strong>Vuelta:</strong> {new Date(viaje.fechaVuelta).toLocaleDateString()}
+                </p>
+                {viaje.descripcion && <p className="card-text">{viaje.descripcion}</p>}
+                {viaje.opinion && <p className="card-text"><em>{viaje.opinion}</em></p>}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
