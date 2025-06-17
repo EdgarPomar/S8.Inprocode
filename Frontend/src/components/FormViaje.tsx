@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useViajes, Viaje } from '../contexts/viajeContext';
+import MapSelector from './MapSelector'; // importa el componente MapSelector
+import { Place } from '../types/mapbox'; // importa el tipo si quieres tipar
 
 interface FormViajeProps {
   viajeEditar?: Viaje;
@@ -18,6 +20,9 @@ const FormViaje: React.FC<FormViajeProps> = ({ viajeEditar, onClose }) => {
     opinion: '',
   });
 
+  // Si quieres guardar lat/lng también
+  const [coords, setCoords] = useState<{ lng: number; lat: number } | null>(null);
+
   useEffect(() => {
     if (viajeEditar) {
       setFormData({
@@ -28,8 +33,17 @@ const FormViaje: React.FC<FormViajeProps> = ({ viajeEditar, onClose }) => {
         descripcion: viajeEditar.descripcion || '',
         opinion: viajeEditar.opinion || '',
       });
+      // Si tienes lat/lng en viajeEditar, asignalos aquí
+      // setCoords({ lng: viajeEditar.lng, lat: viajeEditar.lat });
     }
   }, [viajeEditar]);
+
+  const handlePlaceSelected = (place: Place) => {
+    // Ejemplo: almacenar el lugar como "Madrid, España"
+    const fullName = `${place.name}${place.country ? ', ' + place.country : ''}`;
+    setFormData(prev => ({ ...prev, lugar: fullName }));
+    setCoords({ lng: place.lng, lat: place.lat });
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -43,6 +57,7 @@ const FormViaje: React.FC<FormViajeProps> = ({ viajeEditar, onClose }) => {
       ...formData,
       fechaIda: new Date(formData.fechaIda).toISOString(),
       fechaVuelta: new Date(formData.fechaVuelta).toISOString(),
+      ...coords, // si quieres enviar lat/lng al backend
     };
 
     if (viajeEditar && viajeEditar._id) {
@@ -61,11 +76,26 @@ const FormViaje: React.FC<FormViajeProps> = ({ viajeEditar, onClose }) => {
       descripcion: '',
       opinion: '',
     });
+    setCoords(null);
   };
 
   return (
     <form onSubmit={handleSubmit} className="bg-white shadow-sm rounded p-4 max-w-md mx-auto">
-      {['lugar', 'fechaIda', 'fechaVuelta', 'imagen', 'descripcion', 'opinion'].map((field) => (
+      {/* Aquí va MapSelector en lugar del input para 'lugar' */}
+      <div className="mb-3">
+        <label className="form-label">Lugar</label>
+        <MapSelector onPlaceSelected={handlePlaceSelected} />
+        <input
+          type="text"
+          readOnly
+          value={formData.lugar}
+          className="form-control mt-2"
+          placeholder="Selecciona un lugar en el mapa"
+        />
+      </div>
+
+      {/* El resto de campos */}
+      {['fechaIda', 'fechaVuelta', 'imagen', 'descripcion', 'opinion'].map((field) => (
         <div className="mb-3" key={field}>
           <label htmlFor={field} className="form-label">
             {field.charAt(0).toUpperCase() + field.slice(1)}
