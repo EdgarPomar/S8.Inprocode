@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
-import { useViajes } from '../contexts/viajeContext';
+import React, { useEffect, useState } from 'react';
+import { useViajes, Viaje } from '../contexts/viajeContext';
 
-const FormViaje: React.FC = () => {
-  const { crearViaje } = useViajes();
+interface FormViajeProps {
+  viajeEditar?: Viaje;
+  onClose?: () => void;
+}
+
+const FormViaje: React.FC<FormViajeProps> = ({ viajeEditar, onClose }) => {
+  const { crearViaje, editarViaje } = useViajes();
+
   const [formData, setFormData] = useState({
     lugar: '',
     fechaIda: '',
@@ -12,6 +18,19 @@ const FormViaje: React.FC = () => {
     opinion: '',
   });
 
+  useEffect(() => {
+    if (viajeEditar) {
+      setFormData({
+        lugar: viajeEditar.lugar || '',
+        fechaIda: viajeEditar.fechaIda?.slice(0, 10) || '',
+        fechaVuelta: viajeEditar.fechaVuelta?.slice(0, 10) || '',
+        imagen: viajeEditar.imagen || '',
+        descripcion: viajeEditar.descripcion || '',
+        opinion: viajeEditar.opinion || '',
+      });
+    }
+  }, [viajeEditar]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -19,23 +38,67 @@ const FormViaje: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await crearViaje(formData);
-    setFormData({ lugar: '', fechaIda: '', fechaVuelta: '', imagen: '', descripcion: '', opinion: '' });
+
+    const formateado = {
+      ...formData,
+      fechaIda: new Date(formData.fechaIda).toISOString(),
+      fechaVuelta: new Date(formData.fechaVuelta).toISOString(),
+    };
+
+    if (viajeEditar && viajeEditar._id) {
+      await editarViaje({ ...viajeEditar, ...formateado });
+    } else {
+      await crearViaje(formateado);
+    }
+
+    if (onClose) onClose();
+
+    setFormData({
+      lugar: '',
+      fechaIda: '',
+      fechaVuelta: '',
+      imagen: '',
+      descripcion: '',
+      opinion: '',
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 max-w-md mx-auto">
-      <h2 className="text-xl font-semibold mb-4">Nuevo Viaje</h2>
+    <form onSubmit={handleSubmit} className="bg-white shadow-sm rounded p-4 max-w-md mx-auto">
+      {['lugar', 'fechaIda', 'fechaVuelta', 'imagen', 'descripcion', 'opinion'].map((field) => (
+        <div className="mb-3" key={field}>
+          <label htmlFor={field} className="form-label">
+            {field.charAt(0).toUpperCase() + field.slice(1)}
+          </label>
+          {field === 'descripcion' || field === 'opinion' ? (
+            <textarea
+              id={field}
+              name={field}
+              value={formData[field as keyof typeof formData]}
+              onChange={handleChange}
+              className="form-control"
+              rows={field === 'descripcion' ? 3 : 2}
+            />
+          ) : (
+            <input
+              id={field}
+              name={field}
+              type={field.includes('fecha') ? 'date' : 'text'}
+              value={formData[field as keyof typeof formData]}
+              onChange={handleChange}
+              className="form-control"
+            />
+          )}
+        </div>
+      ))}
 
-      <input name="lugar" placeholder="Lugar" value={formData.lugar} onChange={handleChange} required className="input" />
-      <input type="date" name="fechaIda" value={formData.fechaIda} onChange={handleChange} required className="input" />
-      <input type="date" name="fechaVuelta" value={formData.fechaVuelta} onChange={handleChange} required className="input" />
-      <input name="imagen" placeholder="URL de imagen" value={formData.imagen} onChange={handleChange} className="input" />
-      <textarea name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleChange} rows={3} className="input" />
-      <textarea name="opinion" placeholder="Opinión" value={formData.opinion} onChange={handleChange} rows={2} className="input" />
-
-      <div className="text-right">
-        <button type="submit" className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Crear Viaje</button>
+      <div className="text-end d-flex gap-2">
+        <button type="button" className="btn btn-secondary" onClick={onClose}>
+          Cerrar
+        </button>
+        <button type="submit" className="btn btn-primary">
+          {viajeEditar ? 'Actualizar' : 'Crear Viaje'}
+        </button>
       </div>
     </form>
   );
