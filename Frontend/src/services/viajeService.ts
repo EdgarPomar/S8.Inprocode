@@ -1,9 +1,16 @@
 import { Viaje } from '../contexts/viajeContext'; // ajusta la ruta si es diferente
 
 export const obtenerViajes = async () => {
-  const res = await fetch("http://localhost:3000/api/viajes");
+  const res = await fetch("http://localhost:3000/api/viajes", {
+    method: "GET",
+    headers: {
+      "Cache-Control": "no-cache", // ⚠️ fuerza al navegador a no usar caché
+    },
+  });
+
   return await res.json();
 };
+
 
 export const crearViaje = async (viaje: Viaje) => {
   const res = await fetch("http://localhost:3000/api/viajes", {

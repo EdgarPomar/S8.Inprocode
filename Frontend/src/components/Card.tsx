@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { obtenerViajes, borrarViaje } from '../services/viajeService';
 import FormViaje from './FormViaje';
@@ -9,14 +9,14 @@ const Card: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [viajeSeleccionado, setViajeSeleccionado] = useState<Viaje | null>(null);
 
-  const cargarViajes = async () => {
+  const cargarViajes = useCallback(async () => {
     const data = await obtenerViajes();
     setViajes(data);
-  };
+  }, []);
 
   useEffect(() => {
     cargarViajes();
-  }, [viajes]);
+  }, [cargarViajes]);
 
   const handleEdit = (viaje: Viaje) => {
     setViajeSeleccionado(viaje);
@@ -27,7 +27,9 @@ const Card: React.FC = () => {
     const confirmar = window.confirm('¿Estás seguro de eliminar este viaje?');
     if (confirmar) {
       const eliminado = await borrarViaje(id);
-      if (eliminado) cargarViajes();
+      if (eliminado) {
+        cargarViajes();
+      }
     }
   };
 
@@ -39,6 +41,17 @@ const Card: React.FC = () => {
 
   return (
     <div className="container my-4">
+      <button
+        type="button"
+        className="btn btn-primary mb-3"
+        onClick={() => {
+          setViajeSeleccionado(null);
+          setShowModal(true);
+        }}
+      >
+        Crear Viaje
+      </button>
+
       <div className="row g-4">
         {viajes.map((viaje) => (
           <div className="col-md-4" key={viaje._id}>
@@ -79,7 +92,12 @@ const Card: React.FC = () => {
 
       {/* Modal Bootstrap */}
       {showModal && (
-        <div className="modal fade show d-block" tabIndex={-1} role="dialog" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <div
+          className="modal fade show d-block"
+          tabIndex={-1}
+          role="dialog"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        >
           <div className="modal-dialog modal-lg" role="document">
             <div className="modal-content">
               <div className="modal-header">
