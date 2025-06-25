@@ -1,0 +1,20 @@
+.fc-event {
+  font-size: 0.9rem;
+  padding: 2px 4px;
+  border-radius: 6px;
+}
+
+/* Estilo para eventos de festivos */
+.fc-event.festivo {
+  background-color: #f87171 !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+/* Asegura que los enlaces a Google Calendar no funcionen ni parezcan links */
+.fc-event a[href*="calendar.google.com"] {
+  pointer-events: none;
+  cursor: default;
+  text-decoration: none !important;
+  color: inherit;
+}
