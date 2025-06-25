@@ -61,9 +61,9 @@ const FormViaje: React.FC<FormViajeProps> = ({ viajeEditar, onClose }) => {
     };
 
     if (viajeEditar && viajeEditar._id) {
-      await editarViaje({ ...viajeEditar, ...formateado });
+      editarViaje({ ...viajeEditar, ...formateado });
     } else {
-      await crearViaje(formateado);
+      crearViaje(formateado);
     }
 
     if (onClose) onClose();
