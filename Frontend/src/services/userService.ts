@@ -1,15 +1,16 @@
+// src/services/userService.ts
 import axios from 'axios'
 import { User } from '../types/User'
 
-const API_URL = 'http://localhost:3000'
+const API_URL = 'http://localhost:3000/api/usuarios' // 👈 CORRECTO path base
 
 export const getUsers = async () => {
-  const res = await axios.get<User[]>(`${API_URL}/`)
+  const res = await axios.get<User[]>(API_URL)
   return res.data
 }
 
 export const createUser = async (user: User) => {
-  const res = await axios.post<User>(`${API_URL}/`, user)
+  const res = await axios.post<User>(API_URL, user)
   return res.data
 }
 
