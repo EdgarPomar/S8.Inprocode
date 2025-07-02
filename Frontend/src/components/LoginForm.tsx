@@ -14,6 +14,7 @@ function LoginForm() {
     try {
       await login(email, password)
       setError(null)
+      console.log('✅ Usuario logueado correctamente')
     } catch (err) {
       setError('Credenciales inválidas')
     }
