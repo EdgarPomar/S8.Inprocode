@@ -18,6 +18,33 @@ router.post('/register', async (req: Request, res: Response) => {
   }
 })
 
+router.post('/login', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, password } = req.body
+
+    if (!email || !password) {
+      res.status(400).json({ msg: 'Faltan campos' })
+      return
+    }
+
+    const usuario = await Usuario.findOne({ email, password })
+
+    if (!usuario) {
+      res.status(400).json({ msg: 'Email o contraseña incorrectos' })
+      return
+    }
+
+    // Eliminamos password del objeto antes de enviar
+    const { password: _, ...usuarioSinPassword } = usuario.toObject()
+    res.status(200).json(usuarioSinPassword)
+  } catch (err) {
+    if (err instanceof Error) {
+      res.status(500).json({ error: err.message })
+    } else {
+      res.status(500).json({ error: 'Error desconocido' })
+    }
+  }
+})
 // // Obtener todos los usuarios
 // router.get('/', async (_req: Request, res: Response) => {
 //   try {
