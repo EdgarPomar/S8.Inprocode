@@ -10,15 +10,19 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    try {
-      await login(email, password)
-      setError(null)
-      console.log('✅ Usuario logueado correctamente')
-    } catch (err) {
-      setError('Credenciales inválidas')
-    }
+  e.preventDefault()
+  try {
+    await login(email, password)
+    console.log('✅ Usuario logueado correctamente')
+    // Aquí añade:
+    const storedUser = localStorage.getItem('usuario')
+    console.log('Usuario almacenado en localStorage:', storedUser)
+    setError(null)
+  } catch (err) {
+    setError('Credenciales inválidas')
   }
+}
+
 
   return (
     <div className="card p-4 mx-auto" style={{ maxWidth: 400 }}>

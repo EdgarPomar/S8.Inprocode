@@ -12,6 +12,7 @@ interface Usuario {
 
 interface AuthContextProps {
   usuario: Usuario | null
+  setUsuario: React.Dispatch<React.SetStateAction<Usuario | null>>
   login: (email: string, password: string) => Promise<void>
   register: (nombre: string, email: string, password: string) => Promise<void>
   logout: () => void
@@ -31,13 +32,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [])
 
   const login = async (email: string, password: string) => {
-    const data = await loginUser({ email, password })
-    if (data.token && data.usuario) {
-      setUsuario(data.usuario)
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('usuario', JSON.stringify(data.usuario))
+    const user = await loginUser({ email, password })
+    console.log('📦 Respuesta loginUser:', user) // <-- debería mostrar el usuario plano
+
+    if (user && user._id) { // comprobamos que tiene un ID
+      setUsuario(user)
+      localStorage.setItem('usuario', JSON.stringify(user))
+    } else {
+      throw new Error('Error al iniciar sesión: usuario inválido')
     }
   }
+
+
 
   const register = async (nombre: string, email: string, password: string) => {
     const data = await registerUser({ nombre, email, password })
@@ -55,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   return (
-    <AuthContext.Provider value={{ usuario, login, register, logout }}>
+    <AuthContext.Provider value={{ usuario, setUsuario, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   )
