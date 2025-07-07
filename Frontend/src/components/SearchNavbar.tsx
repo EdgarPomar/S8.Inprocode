@@ -2,7 +2,12 @@ import { useContext, useState } from 'react'
 import { AuthContext } from '../contexts/authContext'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
-function ResponsiveAppBar({ onMenuSelect }: { onMenuSelect: (form: 'register' | 'login') => void }) {
+interface ResponsiveAppBarProps {
+  onMenuSelect: (form: 'register' | 'login') => void
+  onLogout: () => void
+}
+
+function ResponsiveAppBar({ onMenuSelect, onLogout }: ResponsiveAppBarProps) {
   const auth = useContext(AuthContext)
   if (!auth) throw new Error('AuthContext is undefined. ¿Olvidaste envolver la app con <AuthProvider>?')
   const { usuario, logout } = auth
@@ -24,6 +29,7 @@ function ResponsiveAppBar({ onMenuSelect }: { onMenuSelect: (form: 'register' | 
 
   const handleLogout = () => {
     logout()
+    onLogout() // Avisamos a App para que reseteé la vista
     cerrarAvatarMenu()
   }
 

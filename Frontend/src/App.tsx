@@ -1,40 +1,61 @@
-import { useState } from 'react'
-import RegisterForm from './components/RegisterForm'
+import { useContext, useState } from 'react'
+import { AuthContext } from './contexts/authContext'
+import ProtectedApp from './components/ProtectedApp'
+import Placeholder from './components/Placeholder'
 import LoginForm from './components/LoginForm'
-import { ViajesProvider } from './contexts/viajeContext'
-import { AuthProvider } from './contexts/authContext' // importa tu AuthProvider
 import ResponsiveAppBar from './components/SearchNavbar'
-import Card from './components/Card'
-import CalendarPage from './pages/CalendarPage'
 
 function App() {
-  const [formVisible, setFormVisible] = useState<'register' | 'login' | null>(null)
+  const authContext = useContext(AuthContext)
+  const [showLoginForm, setShowLoginForm] = useState(false)
+
+  if (!authContext) throw new Error('AuthContext no disponible')
+
+  const { usuario, logout } = authContext
+
+  // Función que hace logout y regresa a página de pega
+  const handleLogout = () => {
+    logout()
+    setShowLoginForm(false) // vuelve a la página de pega
+  }
+
+  if (!usuario) {
+    if (showLoginForm) {
+      return (
+        <div className="container p-4 bg-light min-vh-100">
+          <ResponsiveAppBar
+            onMenuSelect={() => setShowLoginForm(true)}
+            onLogout={handleLogout}
+            usuario={usuario}
+          />
+          <LoginForm />
+        </div>
+      )
+    }
+
+    return (
+      <div className="p-4 bg-light min-vh-100">
+        <ResponsiveAppBar
+          onMenuSelect={() => setShowLoginForm(true)}
+          onLogout={handleLogout}
+          usuario={usuario}
+        />
+        <Placeholder onContinue={() => setShowLoginForm(true)} />
+      </div>
+    )
+  }
 
   return (
-    <AuthProvider>
-      <ViajesProvider>
-        <div className="p-4 bg-light min-vh-100">
-          <ResponsiveAppBar onMenuSelect={setFormVisible} />
-
-          <div className="container mt-4">
-            {formVisible === 'register' && <RegisterForm />}
-            {formVisible === 'login' && <LoginForm />}
-          </div>
-
-          {/* Mostrar contenido principal solo si no se está mostrando un formulario */}
-          {!formVisible && (
-            <>
-              <div className="d-flex justify-content-center align-items-center mb-4">
-                <h1 className="h3 fw-bold text-center pt-4">Mis Viajes</h1>
-              </div>
-              <Card />
-              <CalendarPage />
-            </>
-          )}
-        </div>
-      </ViajesProvider>
-    </AuthProvider>
+    <div className="p-4 bg-light min-vh-100">
+      <ResponsiveAppBar
+        onMenuSelect={() => setShowLoginForm(true)}
+        onLogout={handleLogout}
+        usuario={usuario}
+      />
+      <ProtectedApp />
+    </div>
   )
 }
+
 
 export default App
