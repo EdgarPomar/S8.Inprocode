@@ -5,17 +5,17 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 interface ResponsiveAppBarProps {
   onMenuSelect: (form: 'register' | 'login') => void
   onLogout: () => void
+  onNavClick: (page: string) => void
+  usuario: { nombre: string } | null
 }
 
-function ResponsiveAppBar({ onMenuSelect, onLogout }: ResponsiveAppBarProps) {
+function ResponsiveAppBar({ onMenuSelect, onLogout, onNavClick, usuario }: ResponsiveAppBarProps) {
   const auth = useContext(AuthContext)
   if (!auth) throw new Error('AuthContext is undefined. ¿Olvidaste envolver la app con <AuthProvider>?')
-  const { usuario, logout } = auth
+  const { logout } = auth
 
   const [menuAvatarAbierto, setMenuAvatarAbierto] = useState(false)
   const [menuNavAbierto, setMenuNavAbierto] = useState(false)
-
-  console.log('🔑 Usuario en AppBar:', usuario)
 
   const toggleAvatarMenu = () => setMenuAvatarAbierto(!menuAvatarAbierto)
   const cerrarAvatarMenu = () => setMenuAvatarAbierto(false)
@@ -33,6 +33,11 @@ function ResponsiveAppBar({ onMenuSelect, onLogout }: ResponsiveAppBarProps) {
     cerrarAvatarMenu()
   }
 
+  const handleNavItemClick = (page: string) => {
+    onNavClick(page)
+    cerrarNavMenu()
+  }
+
   return (
     <nav className="navbar navbar-expand-md navbar-dark bg-dark">
       <div className="container-fluid">
@@ -44,9 +49,7 @@ function ResponsiveAppBar({ onMenuSelect, onLogout }: ResponsiveAppBarProps) {
 
         {/* Avatar + Nombre */}
         <div className="order-md-2 ms-auto d-flex align-items-center position-relative">
-          <span className="text-white me-2">
-            {usuario ? usuario.nombre : 'Invitado'}
-          </span>
+          <span className="text-white me-2">{usuario ? usuario.nombre : 'Invitado'}</span>
           <img
             src={'/profileLogo.png'}
             alt="User Avatar"
@@ -67,16 +70,22 @@ function ResponsiveAppBar({ onMenuSelect, onLogout }: ResponsiveAppBarProps) {
                     <span className="dropdown-item-text">👤 {usuario.nombre}</span>
                   </li>
                   <li>
-                    <button className="dropdown-item" onClick={handleLogout}>Cerrar sesión</button>
+                    <button className="dropdown-item" onClick={handleLogout}>
+                      Cerrar sesión
+                    </button>
                   </li>
                 </>
               ) : (
                 <>
                   <li>
-                    <button className="dropdown-item" onClick={() => handleClick('register')}>Register</button>
+                    <button className="dropdown-item" onClick={() => handleClick('register')}>
+                      Register
+                    </button>
                   </li>
                   <li>
-                    <button className="dropdown-item" onClick={() => handleClick('login')}>Login</button>
+                    <button className="dropdown-item" onClick={() => handleClick('login')}>
+                      Login
+                    </button>
                   </li>
                 </>
               )}
@@ -92,9 +101,14 @@ function ResponsiveAppBar({ onMenuSelect, onLogout }: ResponsiveAppBarProps) {
         {/* Menú navegación */}
         <div className={`collapse navbar-collapse order-md-1 ${menuNavAbierto ? 'show' : ''}`} id="navbarNav">
           <ul className="navbar-nav me-auto mb-2 mb-md-0">
-            {['Calendar', 'Graphics'].map(page => (
+            {['card', 'calendar', 'graphics'].map(page => (
               <li className="nav-item" key={page}>
-                <a className="nav-link" href={`#${page.toLowerCase()}`} onClick={cerrarNavMenu}>{page}</a>
+                <button
+                  className="nav-link btn btn-link text-white"
+                  onClick={() => handleNavItemClick(page)}
+                >
+                  {page.charAt(0).toUpperCase() + page.slice(1)}
+                </button>
               </li>
             ))}
           </ul>
