@@ -1,16 +1,17 @@
 import { useContext, useState } from 'react'
+import { useNavigate } from 'react-router-dom' // 👈 IMPORTANTE
 import { AuthContext } from '../contexts/authContext'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 interface ResponsiveAppBarProps {
-  onMenuSelect: (form: 'register' | 'login') => void
   onLogout: () => void
   onNavClick: (page: string) => void
   usuario: { nombre: string } | null
 }
 
-function ResponsiveAppBar({ onMenuSelect, onLogout, onNavClick, usuario }: ResponsiveAppBarProps) {
+function ResponsiveAppBar({ onLogout, onNavClick, usuario }: ResponsiveAppBarProps) {
   const auth = useContext(AuthContext)
+  const navigate = useNavigate() // 👈 Hook para navegación
   if (!auth) throw new Error('AuthContext is undefined. ¿Olvidaste envolver la app con <AuthProvider>?')
   const { logout } = auth
 
@@ -22,14 +23,14 @@ function ResponsiveAppBar({ onMenuSelect, onLogout, onNavClick, usuario }: Respo
   const toggleNavMenu = () => setMenuNavAbierto(!menuNavAbierto)
   const cerrarNavMenu = () => setMenuNavAbierto(false)
 
-  const handleClick = (form: 'register' | 'login') => {
-    onMenuSelect(form)
+  const handleGoTo = (path: string) => {
+    navigate(path) // 👈 Navega directamente
     cerrarAvatarMenu()
   }
 
   const handleLogout = () => {
     logout()
-    onLogout() // Avisamos a App para que reseteé la vista
+    onLogout()
     cerrarAvatarMenu()
   }
 
@@ -78,13 +79,13 @@ function ResponsiveAppBar({ onMenuSelect, onLogout, onNavClick, usuario }: Respo
               ) : (
                 <>
                   <li>
-                    <button className="dropdown-item" onClick={() => handleClick('register')}>
-                      Register
+                    <button className="dropdown-item" onClick={() => handleGoTo('/register')}>
+                      Registrarse
                     </button>
                   </li>
                   <li>
-                    <button className="dropdown-item" onClick={() => handleClick('login')}>
-                      Login
+                    <button className="dropdown-item" onClick={() => handleGoTo('/login')}>
+                      Iniciar sesión
                     </button>
                   </li>
                 </>

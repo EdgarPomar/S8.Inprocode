@@ -9,6 +9,7 @@ export interface Viaje {
   imagen?: string;
   descripcion?: string;
   opinion?: string;
+  inscritos?: string[]; 
 }
 
 interface ViajesContextProps {

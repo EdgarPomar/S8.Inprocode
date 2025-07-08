@@ -1,28 +1,33 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// src/components/LoginForm.tsx
-import { useState } from 'react'
-import { useAuth } from '../hooks/useAuth'
+import { useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';  // <-- Importa useNavigate
 
 function LoginForm() {
-  const { login } = useAuth()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const navigate = useNavigate();  // <-- Inicializa el hook
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault()
-  try {
-    await login(email, password)
-    console.log('✅ Usuario logueado correctamente')
-    // Aquí añade:
-    const storedUser = localStorage.getItem('usuario')
-    console.log('Usuario almacenado en localStorage:', storedUser)
-    setError(null)
-  } catch (err) {
-    setError('Credenciales inválidas')
-  }
-}
+    e.preventDefault();
+    try {
+      await login(email, password);
+      console.log('✅ Usuario logueado correctamente');
+      const storedUser = localStorage.getItem('usuario');
+      console.log('Usuario almacenado en localStorage:', storedUser);
+      setError(null);
+      // Aquí podrías navegar al dashboard u otra página tras login exitoso
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      setError('Credenciales inválidas');
+    }
+  };
 
+  const handleNavigateRegister = () => {
+    navigate('/register');  // Navega a la página de registro
+  };
 
   return (
     <div className="card p-4 mx-auto" style={{ maxWidth: 400 }}>
@@ -49,10 +54,24 @@ function LoginForm() {
             onChange={e => setPassword(e.target.value)}
           />
         </div>
-        <button className="btn btn-primary w-100" type="submit">Entrar</button>
+        <button className="btn btn-primary w-100" type="submit">
+          Entrar
+        </button>
       </form>
+
+      <div className="mt-3 text-center">
+        <span>¿No estás registrado? </span>
+        <button
+          type="button"
+          className="btn btn-link p-0"
+          onClick={handleNavigateRegister}
+          style={{ textDecoration: 'underline' }}
+        >
+          Regístrate
+        </button>
+      </div>
     </div>
-  )
+  );
 }
 
-export default LoginForm
+export default LoginForm;

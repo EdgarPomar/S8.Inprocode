@@ -34,3 +34,18 @@ export const borrarViaje = async (id: string) => {
   const res = await fetch(`http://localhost:3000/api/viajes/${id}`, { method: "DELETE" });
   return res.ok;
 };
+
+export const inscribirUsuario = async (viajeId: string, usuarioId: string) => {
+  const res = await fetch(`http://localhost:3000/api/viajes/inscribir/${viajeId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ usuarioId }),
+  });
+
+  if (!res.ok) {
+    // Opcional: Maneja el error para que no falle silenciosamente
+    throw new Error('Error al inscribir usuario');
+  }
+
+  return await res.json();
+};

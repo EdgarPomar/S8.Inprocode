@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import 'bootstrap-icons/font/bootstrap-icons.css';
-import { obtenerViajes, borrarViaje } from '../services/viajeService';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
+import { obtenerViajes, borrarViaje, inscribirUsuario } from '../services/viajeService';
+import { AuthContext } from '../contexts/authContext';
 import FormViaje from './FormViaje';
 import { Viaje } from '../contexts/viajeContext';
 
@@ -8,6 +8,7 @@ const Card: React.FC = () => {
   const [viajes, setViajes] = useState<Viaje[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [viajeSeleccionado, setViajeSeleccionado] = useState<Viaje | null>(null);
+  const auth = useContext(AuthContext);
 
   const cargarViajes = useCallback(async () => {
     const data = await obtenerViajes();
@@ -18,24 +19,13 @@ const Card: React.FC = () => {
     cargarViajes();
   }, [cargarViajes]);
 
-  const handleEdit = (viaje: Viaje) => {
-    setViajeSeleccionado(viaje);
-    setShowModal(true);
-  };
-
-  const handleDelete = async (id: string) => {
-    const confirmar = window.confirm('¿Estás seguro de eliminar este viaje?');
-    if (confirmar) {
-      const eliminado = await borrarViaje(id);
-      if (eliminado) {
-        cargarViajes();
-      }
+  const handleInscribir = async (viajeId: string) => {
+    if (!auth?.usuario?._id) {
+      alert('Debes iniciar sesión para inscribirte');
+      return;
     }
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setViajeSeleccionado(null);
+    const res = await inscribirUsuario(viajeId, auth.usuario._id);
+    alert(res.mensaje);
     cargarViajes();
   };
 
@@ -61,27 +51,38 @@ const Card: React.FC = () => {
               )}
               <div className="card-body d-flex flex-column">
                 <h5 className="card-title">{viaje.lugar}</h5>
-                <p className="card-text mb-2">
+                <p className="card-text">
                   <strong>Ida:</strong> {new Date(viaje.fechaIda).toLocaleDateString()}<br />
                   <strong>Vuelta:</strong> {new Date(viaje.fechaVuelta).toLocaleDateString()}
                 </p>
-                {viaje.descripcion && <p className="card-text">{viaje.descripcion}</p>}
-                {viaje.opinion && <p className="card-text"><em>{viaje.opinion}</em></p>}
+                <p className="card-text">
+                  <strong>Inscritos:</strong> {viaje.inscritos?.length || 0}
+                </p>
 
-                <div className="mt-auto d-flex justify-content-end gap-2">
+                <div className="mt-auto d-flex justify-content-between">
                   <button
-                    type='button'
-                    className="btn btn-warning btn-sm"
-                    onClick={() => handleEdit(viaje)}
+                    type="button"
+                    className="btn btn-success btn-sm"
+                    onClick={() => handleInscribir(viaje._id!)}
                   >
-                    <i className="bi bi-pencil"></i>
+                    Inscribirme
                   </button>
                   <button
-                    type='button'
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleDelete(viaje._id!)}
+                    type="button"
+                    className="btn btn-warning btn-sm"
+                    onClick={() => {
+                      setViajeSeleccionado(viaje);
+                      setShowModal(true);
+                    }}
                   >
-                    <i className="bi bi-trash"></i>
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-danger btn-sm"
+                    onClick={() => borrarViaje(viaje._id!).then(cargarViajes)}
+                  >
+                    Eliminar
                   </button>
                 </div>
               </div>
@@ -90,7 +91,6 @@ const Card: React.FC = () => {
         ))}
       </div>
 
-      {/* Modal Bootstrap */}
       {showModal && (
         <div
           className="modal fade show d-block"
@@ -102,10 +102,10 @@ const Card: React.FC = () => {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">{viajeSeleccionado ? 'Editar Viaje' : 'Crear Viaje'}</h5>
-                <button type="button" className="btn-close" onClick={handleCloseModal}></button>
+                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
               </div>
               <div className="modal-body">
-                <FormViaje viajeEditar={viajeSeleccionado ?? undefined} onClose={handleCloseModal} />
+                <FormViaje viajeEditar={viajeSeleccionado ?? undefined} onClose={() => setShowModal(false)} />
               </div>
             </div>
           </div>
