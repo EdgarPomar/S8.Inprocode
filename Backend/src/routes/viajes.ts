@@ -54,4 +54,40 @@ router.delete('/:id', async (req: Request, res: Response) => {
   }
 });
 
+router.post('/inscribir/:id', async (req: Request, res: Response) => {
+  try {
+    const viajeId = req.params.id;
+    const { usuarioId } = req.body;
+
+    if (!usuarioId) {
+      res.status(400).json({ mensaje: 'Falta usuarioId en body' });
+      return;
+    }
+
+    const viaje = await Viaje.findById(viajeId);
+    if (!viaje) {
+      res.status(404).json({ mensaje: 'Viaje no encontrado' });
+      return;
+    }
+
+    if (!viaje.inscritos) viaje.inscritos = [];
+
+    if (viaje.inscritos.includes(usuarioId)) {
+      res.status(400).json({ mensaje: 'Usuario ya inscrito' });
+      return;
+    }
+
+    viaje.inscritos.push(usuarioId);
+    await viaje.save();
+
+    res.json({ mensaje: 'Usuario inscrito con éxito', inscritos: viaje.inscritos });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
+
+
+
 export default router;
