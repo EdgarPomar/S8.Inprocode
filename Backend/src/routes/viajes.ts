@@ -25,7 +25,7 @@ router.get('/', async (_req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const viaje = await Viaje.findById(req.params.id);
-    if (!viaje) res.status(404).json({ mensaje: 'Viaje no encontrado' });
+    if (!viaje) res.status(404).json({ mensaje: 'Viajes no encontrados' });
     res.json(viaje);
   } catch (error) {
     res.status(500).json({ error });
