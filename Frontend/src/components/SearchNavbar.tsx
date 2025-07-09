@@ -43,7 +43,7 @@ function ResponsiveAppBar({ onLogout, onNavClick, usuario }: ResponsiveAppBarPro
     <nav className="navbar navbar-expand-md navbar-dark bg-dark">
       <div className="container-fluid">
         {/* Logo */}
-        <a className="navbar-brand d-flex align-items-center" href="#home">
+        <a className="navbar-brand d-flex align-items-center">
           <img src="/logo.png" alt="Logo" height="50" className="d-none d-md-block me-2" />
           <img src="/logo.png" alt="Logo" height="40" className="d-md-none me-2" />
         </a>

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useViajes, Viaje } from '../contexts/viajeContext';
-import MapSelector from './MapSelector'; // importa el componente MapSelector
-import { Place } from '../types/mapbox'; // importa el tipo si quieres tipar
+import MapSelector from './MapSelector';
+import { Place } from '../types/mapbox';
 
 interface FormViajeProps {
   viajeEditar?: Viaje;
   onClose?: () => void;
+  onViajeGuardado?: () => void; // ✅ Nueva prop para actualizar lista
 }
 
-const FormViaje: React.FC<FormViajeProps> = ({ viajeEditar, onClose }) => {
+const FormViaje: React.FC<FormViajeProps> = ({ viajeEditar, onClose, onViajeGuardado }) => {
   const { crearViaje, editarViaje } = useViajes();
 
   const [formData, setFormData] = useState({
@@ -20,7 +21,6 @@ const FormViaje: React.FC<FormViajeProps> = ({ viajeEditar, onClose }) => {
     opinion: '',
   });
 
-  // Si quieres guardar lat/lng también
   const [coords, setCoords] = useState<{ lng: number; lat: number } | null>(null);
 
   useEffect(() => {
@@ -39,7 +39,6 @@ const FormViaje: React.FC<FormViajeProps> = ({ viajeEditar, onClose }) => {
   }, [viajeEditar]);
 
   const handlePlaceSelected = (place: Place) => {
-    // Ejemplo: almacenar el lugar como "Madrid, España"
     const fullName = `${place.name}${place.country ? ', ' + place.country : ''}`;
     setFormData(prev => ({ ...prev, lugar: fullName }));
     setCoords({ lng: place.lng, lat: place.lat });
@@ -57,17 +56,26 @@ const FormViaje: React.FC<FormViajeProps> = ({ viajeEditar, onClose }) => {
       ...formData,
       fechaIda: new Date(formData.fechaIda).toISOString(),
       fechaVuelta: new Date(formData.fechaVuelta).toISOString(),
-      ...coords, // si quieres enviar lat/lng al backend
+      ...coords,
     };
 
     if (viajeEditar && viajeEditar._id) {
-      editarViaje({ ...viajeEditar, ...formateado });
+      await editarViaje({ ...viajeEditar, ...formateado });
     } else {
-      crearViaje(formateado);
+      await crearViaje(formateado);
     }
 
-    if (onClose) onClose();
+    // ✅ Notificar a Card que debe recargar la lista
+    if (onViajeGuardado) {
+      onViajeGuardado();
+    }
 
+    // ✅ Cerrar modal si hay onClose
+    if (onClose) {
+      onClose();
+    }
+
+    // Limpiar formulario
     setFormData({
       lugar: '',
       fechaIda: '',
@@ -81,7 +89,6 @@ const FormViaje: React.FC<FormViajeProps> = ({ viajeEditar, onClose }) => {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white shadow-sm rounded p-4 max-w-md mx-auto">
-      {/* Aquí va MapSelector en lugar del input para 'lugar' */}
       <div className="mb-3">
         <label className="form-label">Lugar</label>
         <MapSelector onPlaceSelected={handlePlaceSelected} />
@@ -94,7 +101,6 @@ const FormViaje: React.FC<FormViajeProps> = ({ viajeEditar, onClose }) => {
         />
       </div>
 
-      {/* El resto de campos */}
       {['fechaIda', 'fechaVuelta', 'imagen', 'descripcion', 'opinion'].map((field) => (
         <div className="mb-3" key={field}>
           <label htmlFor={field} className="form-label">

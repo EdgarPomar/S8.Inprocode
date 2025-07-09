@@ -7,6 +7,7 @@ import RegisterForm from './components/RegisterForm';
 import ResponsiveAppBar from './components/SearchNavbar';
 import Card from './components/Card';
 import CalendarPage from './pages/CalendarPage';
+import GraphicsPage from './pages/GraphicsPage';
 
 function App() {
   const authContext = useContext(AuthContext);
@@ -75,13 +76,7 @@ function App() {
         <Route
           path="/graphics"
           element={
-            usuario ? (
-              <div className="text-center mt-4 text-muted" style={{ fontSize: '1.5rem' }}>
-                🎨 Próximamente...
-              </div>
-            ) : (
-              <Navigate to="/" replace />
-            )
+            usuario ? <GraphicsPage /> : <Navigate to="/login" replace />
           }
         />
 

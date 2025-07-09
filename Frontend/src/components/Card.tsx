@@ -11,8 +11,12 @@ const Card: React.FC = () => {
   const auth = useContext(AuthContext);
 
   const cargarViajes = useCallback(async () => {
-    const data = await obtenerViajes();
-    setViajes(data);
+    try {
+      const data = await obtenerViajes();
+      setViajes(data);
+    } catch (error) {
+      console.error('Error al cargar viajes:', error);
+    }
   }, []);
 
   useEffect(() => {
@@ -27,6 +31,13 @@ const Card: React.FC = () => {
     const res = await inscribirUsuario(viajeId, auth.usuario._id);
     alert(res.mensaje);
     cargarViajes();
+  };
+
+  const handleEliminar = async (viajeId: string) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar este viaje?')) {
+      await borrarViaje(viajeId);
+      await cargarViajes(); // ✅ Recargar lista tras eliminar
+    }
   };
 
   return (
@@ -80,7 +91,7 @@ const Card: React.FC = () => {
                   <button
                     type="button"
                     className="btn btn-danger btn-sm"
-                    onClick={() => borrarViaje(viaje._id!).then(cargarViajes)}
+                    onClick={() => handleEliminar(viaje._id!)}
                   >
                     Eliminar
                   </button>
@@ -105,7 +116,14 @@ const Card: React.FC = () => {
                 <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
               </div>
               <div className="modal-body">
-                <FormViaje viajeEditar={viajeSeleccionado ?? undefined} onClose={() => setShowModal(false)} />
+                <FormViaje
+                  viajeEditar={viajeSeleccionado ?? undefined}
+                  onClose={() => setShowModal(false)}
+                  onViajeGuardado={async () => {
+                    await cargarViajes();     // ✅ Recargar lista
+                    setShowModal(false);      // ✅ Cerrar modal
+                  }}
+                />
               </div>
             </div>
           </div>
