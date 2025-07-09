@@ -66,8 +66,7 @@ const CalendarPage: React.FC = () => {
         eventDidMount={(info) => {
           if (info.event.source?.id === 'viajes') {
             const props = info.event.extendedProps;
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const tooltip = new Tooltip(info.el, {
+            new Tooltip(info.el, {
               title: `
                 <div class='tooltip-card'>
                   <strong>${props.lugar}</strong><br/>
@@ -81,8 +80,9 @@ const CalendarPage: React.FC = () => {
               container: 'body',
             });
           }
-        }}
-      />
+        }
+      }
+    />
     </div>
   );
 };
