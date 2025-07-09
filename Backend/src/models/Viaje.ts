@@ -17,7 +17,9 @@ const ViajeSchema: Schema = new Schema({
   imagen: { type: String, required: false },
   descripcion: { type: String, required: false },
   opinion: { type: String, required: false },
-  inscritos: [{ type: String, required: false, default: [] }], // 👈 nueva propiedad
+  inscritos: [{ type: String, required: false, default: [] }],
+}, {
+  timestamps: true // ⬅️ añade createdAt y updatedAt automáticos
 });
 
 export default mongoose.model<IViaje>('WorldTrips', ViajeSchema, 'WorldTrips');
